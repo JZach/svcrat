@@ -22,6 +22,11 @@ git clone https://github.com/JZach/svcrat.git
 cd svcrat
 ```
 
+Service-User:
+```bash
+sudo adduser svcrat --gecos "" --no-create-home --disabled-login
+```   
+
 Create necessary directories:
 
 ```bash
@@ -34,14 +39,18 @@ Copy script and config:
 
 ```bash
 sudo cp -f ./svcrat.sh /usr/local/bin/svcrat
-(?? PERMISSIONS ??)
 sudo cp -f ./svcrat.conf /usr/local/etc/svcrat
 ```   
+
+Permissions:
+```bash
+sudo chown -R svcrat:svcrat /usr/local/bin/svcrat/
+sudo chmod +x /usr/local/bin/svcrat/svcrat.sh
+```
 
 COPY-UNIT-SERICE
 
 ```bash
-sudo adduser svcrat --gecos "" --no-create-home --disabled-login
 sudo cp -f ./svcrat.service /etc/systemd/system/svcrat.service
 sudo systemctl enable svcrat.service
 sudo systemctl start svcrat.service
@@ -68,10 +77,11 @@ The configuration file is located at ``/usr/local/etc/svcrat/svcrat.conf`` by de
     path = /path/to/scripts/for/host01/port445/
     init_state = x
 
-...
+[...]
 
 [host-n]
-
+    ipv4 = ...
+    port = ...
 ```
 
 Currently, these options are available:
