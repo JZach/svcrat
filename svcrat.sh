@@ -31,7 +31,7 @@ start() {
       local init_state=$(_get_property ${section:-$s} ${property:-"init_state"} ${default:-x})
 
       #echo "description: $description"
-      echo "path: $path"
+      #echo "path: $path"
       #echo "ipv4: $ipv4"
       #echo "port: $port"
       #echo "init_state: $init_state"
