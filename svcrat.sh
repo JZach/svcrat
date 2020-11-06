@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -r CONFIG_FILE='/test/scripts/v2/svcrat.conf'
+declare -r CONFIG_FILE='/usr/local/etc/svcrat/svcrat.conf'
 declare CONFIG_CONTENT
 declare -A SECTIONS
 
@@ -24,14 +24,14 @@ start() {
     for s in "${!SECTIONS[@]}"
     do
       #echo "'$s'"
-      local description=$(_get_property ${section:-$s} ${property:-"description"})
-      local path=$(_get_property ${section:-$s} ${property:-"path"})  #ToDo: add default value
-      local ipv4=$(_get_property ${section:-$s} ${property:-"ipv4"})
       local port=$(_get_property ${section:-$s} ${property:-"port"})
+      local description=$(_get_property ${section:-$s} ${property:-"description"})
+      local path=$(_get_property ${section:-$s} ${property:-"path"} ${default:-"$WORKING_DIRECTORY/$s/$port"}) 
+      local ipv4=$(_get_property ${section:-$s} ${property:-"ipv4"})
       local init_state=$(_get_property ${section:-$s} ${property:-"init_state"} ${default:-x})
 
       #echo "description: $description"
-      #echo "path: $path"
+      echo "path: $path"
       #echo "ipv4: $ipv4"
       #echo "port: $port"
       #echo "init_state: $init_state"
@@ -87,8 +87,9 @@ start() {
 print() {
   [[ $1 > $VERBOSITY_LEVEL ]] && return
 
-  date=$(date '+%d/%m/%Y %H:%M:%S');
-  echo -e "$date\t$2"
+  #date=$(date '+%d/%m/%Y %H:%M:%S');
+  #echo -e "$date\t$2"
+  echo -e "$2"
 }
 
 # -------------------------------------------------- _config --
