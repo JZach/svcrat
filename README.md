@@ -113,11 +113,15 @@ Currently, these options are available:
     description = webservice hosted on localhost
     # description of the service
 
-    path = /path/to/scripts/for/host01/port445/
-    # ...
+    path = /path/to/scripts/for/service-name/service-port/
+    # by befault, all script-folders are create in 'working directory'.
+    # 'path' can be used to override target directories for services.
 
     init_state = x
-    # ...
+    # x     ... (default) treat 'previous state' in first iteration as 'unknown' (x)
+    # skip  ... skip state-change if 'previous state' is 'unknown' -> 0|1"
+    # 0     ... treat 'previous state' in first iteration as 'offline' (0)
+    # 1     ... treat 'previous state' in first iteration as 'online' (1)
 ```
 
 # How it works
@@ -130,8 +134,8 @@ Currently, these options are available:
 State 'x0': [ x -> 0]   # previous service-state was unkown to svcrat and it changed to offline
 State 'x1': [ x -> 1]   # previous service-state was unkown to svcrat and it changed to online
 
-State '00': [ 0 -> 0]   # service-state is and was offline
-State '11': [ 1 -> 1]   # service-state is and was online
+State '00': [ 0 -> 0]   # service-state was and is offline
+State '11': [ 1 -> 1]   # service-state was and is online
 
 State '01': [ 0 -> 1]   # service-state changed from offline to online
 State '10': [ 1 -> 0]   # service-state changed from online to offline
@@ -151,6 +155,8 @@ State '10': [ 1 -> 0]   # service-state changed from online to offline
 │       └── x0              # [ 0 -> 0]
 └── svcrat.sh               # actual service-script
 ```
+
+Folders 'service-name', 'service-port' and 'state-folders' will be created automatically if they don't exist on demand.
 
 # Examples
 
