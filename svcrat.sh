@@ -14,67 +14,44 @@ start() {
 
   #print ${lvl:-1} ${msg:-"Service Rat started ..."}
 
-  #echo "DELAY = '$DELAY'"
-  #echo "WORKING_DIRECTORY = '$WORKING_DIRECTORY'"
-  #echo "VERBOSITY_LEVEL = '$VERBOSITY_LEVEL'"
-
   while :
   do
 
     for s in "${!SECTIONS[@]}"
     do
-      #echo "'$s'"
+
+      # read service params
       local port=$(_get_property ${section:-$s} ${property:-"port"})
       local description=$(_get_property ${section:-$s} ${property:-"description"})
       local path=$(_get_property ${section:-$s} ${property:-"path"} ${default:-"$WORKING_DIRECTORY/$s/$port"}) 
       local ipv4=$(_get_property ${section:-$s} ${property:-"ipv4"})
       local init_state=$(_get_property ${section:-$s} ${property:-"init_state"} ${default:-x})
 
-      #echo "description: $description"
-      #echo "path: $path"
-      #echo "ipv4: $ipv4"
-      #echo "port: $port"
-      #echo "init_state: $init_state"
-
-      ####
-
+      # check service availability
       eval "nc -z $ipv4 $port"
       local svc_state=$( [[ $? = 0 ]] && echo 1 || echo 0 )
-     
+      
+      # check if this cycle should be skipped
+      local skip=$([[ ${SECTIONS["$s"]} == skip ]] && echo true || echo false)
 
-      # first run?
-      if [[ ${SECTIONS["$s"]} == x ]]
-      then
-        #echo "FIRST STATE: "
-        case $init_state in
-          0|1)
-            SECTIONS["$s"]=$init_state
-            ;;
-          skip)
-            #echo -n "SKIPPED"
-            SECTIONS["$s"]=$svc_state
-            continue
-            ;;
-        esac
-      fi
+      # save the state of the service
+      SECTIONS["$s"]=$svc_state
 
+      [[ $skip == true ]] && continue
+
+      # save the current state ("previous state + current state")
       local current_state=${SECTIONS["$s"]}$svc_state
       print ${lvl:-1} ${msg:-"[ ${SECTIONS["$s"]} -> $svc_state ]\t$s\t$ipv4:$port"}
 
-      SECTIONS["$s"]=$svc_state
-
-      ## !?! SKIP HERE !??! ##
-
-      ### what to do?
-
+      # create any missing directory
       [ ! -d "$path/$current_state" ] && mkdir -p "$path/$current_state"
       
+      # execute matching scripts
       svcrat_name=$s \
       svcrat_description=$description \
       svcrat_path=$path \
       svcrat_ipv4=$ipv4 \
       svcrat_port=$port \
-      svcrat_init_state=$init_state \
       run-parts --regex '.*sh$' "$path/$current_state"
 
     done   
@@ -87,9 +64,6 @@ start() {
 # tba
 print() {
   [[ $1 > $VERBOSITY_LEVEL ]] && return
-
-  #date=$(date '+%d/%m/%Y %H:%M:%S');
-  #echo -e "$date\t$2"
   echo -e "$2"
 }
 
@@ -98,30 +72,34 @@ print() {
 _config() {
   CONFIG_CONTENT=$(_load_config)
 
-  #load sections (w/o "global")
+  # load sections (w/o "global")
   local sections=($(echo "$CONFIG_CONTENT" | awk -F 'x' 'NR>1{print $1}' RS='[' FS=']'))
   sections=(${sections[@]/"global"})
 
+  # store all sections in array with inital state
   for s in "${sections[@]}"
   do
-    SECTIONS["$s"]="x"
+    # get state that should be used until first check
+    local init_state=$(_get_property ${section:-$s} ${property:-"init_state"})
+    # assign init_state if valid, otherwise use 'x' ('unknown state') as default
+    SECTIONS["$s"]=$([[ " (skip x 0 1) " =~ $init_state ]] && echo "$init_state" || echo "x")
   done    
 
   #read global properties
-  DELAY=$(_get_property ${section:-"global"} ${property:-"delay"})
+  DELAY=$(_get_property ${section:-"global"} ${property:-"delay"} ${default:-300})
   WORKING_DIRECTORY=$(_get_property ${section:-"global"} ${property:-"working-directory"})
-  VERBOSITY_LEVEL=$(_get_property ${section:-"global"} ${property:-"verbosity-level"})
+  VERBOSITY_LEVEL=$(_get_property ${section:-"global"} ${property:-"verbosity-level"} ${default:-1})
 }
 
 # -------------------------------------------------- _load_config --
 # tba
 _load_config() {
 
-    #local __resultvar=$1
+    # read config-file
     local config=$(<$CONFIG_FILE)
-    #remove comments
+    # remove all comments
     config=$(echo "$config" | grep -o '^[^#]*')
-    #remove blank lines
+    # remove all blank lines
     config=$(echo "$config" | grep -v -e '^[[:space:]]*$')
     
     echo "$config"
@@ -131,10 +109,14 @@ _load_config() {
 # tba
 _get_property() {
   
+  # read content of specified section
   local section=$(echo "$CONFIG_CONTENT" | sed -n '/\['$1'\]/,/\[/{/^\[.*$/!p}')
-  local key=$(echo "$section" | awk -F '=' -v PROPERTY=$2 '$0~PROPERTY { gsub(/ /, "", $1); print $1}')
+  
+  # read specified key/value
+  #local key=$(echo "$section" | awk -F '=' -v PROPERTY=$2 '$0~PROPERTY { gsub(/ /, "", $1); print $1}')
   local value=$(echo "$section" | awk -F '=' -v PROPERTY=$2 '$0~PROPERTY { gsub(/ /, "", $2); print $2}')
 
+  # use $3 (default-value) if no value was specified
   [ -z "$value" ] && value="$3"
 
   echo "$value"
