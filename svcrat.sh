@@ -29,24 +29,24 @@ start() {
 
       # check service availability
       eval "nc -z $ipv4 $port"
-      local svc_state=$( [[ $? = 0 ]] && echo 1 || echo 0 )
+      local current_state=$( [[ $? = 0 ]] && echo 1 || echo 0 )
       
-      # check if this cycle should be skipped
-      local skip=$([[ ${SECTIONS["$s"]} == skip ]] && echo true || echo false)
-
-      # save the current state ("previous state + current state")
-      local current_state=${SECTIONS["$s"]}$svc_state
+      # save previous state
+      local previous_state=${SECTIONS["$s"]}
 
       # save the state of the service for the next cycle
-      SECTIONS["$s"]=$svc_state
+      SECTIONS["$s"]=$current_state
 
-      # if set: skip further processing
-      [[ $skip == true ]] && continue
+      # save the state (" 'previous state' + 'current state' ")
+      local state="$previous_state$current_state"
 
-      print ${lvl:-1} ${msg:-"[ ${SECTIONS["$s"]} -> $svc_state ]\t$s\t$ipv4:$port"}
+      # if "previous_state" (set in config:init_state) is set to "skip" -> skip further processing
+      [[ $previous_state == skip ]] && continue
+
+      print ${lvl:-1} ${msg:-"[ $previous_state -> $current_state ]\t$s\t$ipv4:$port"}
 
       # create any missing directory
-      [ ! -d "$path/$current_state" ] && mkdir -p "$path/$current_state"
+      [ ! -d "$path/$state" ] && mkdir -p "$path/$state"
       
       # execute matching scripts
       svcrat_name=$s \
@@ -54,7 +54,7 @@ start() {
       svcrat_path=$path \
       svcrat_ipv4=$ipv4 \
       svcrat_port=$port \
-      run-parts --regex '.*sh$' "$path/$current_state"
+      run-parts --regex '.*sh$' "$path/$state"
 
     done   
 
