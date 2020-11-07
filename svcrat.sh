@@ -34,13 +34,15 @@ start() {
       # check if this cycle should be skipped
       local skip=$([[ ${SECTIONS["$s"]} == skip ]] && echo true || echo false)
 
-      # save the state of the service
-      SECTIONS["$s"]=$svc_state
-
-      [[ $skip == true ]] && continue
-
       # save the current state ("previous state + current state")
       local current_state=${SECTIONS["$s"]}$svc_state
+
+      # save the state of the service for the next cycle
+      SECTIONS["$s"]=$svc_state
+
+      # if set: skip further processing
+      [[ $skip == true ]] && continue
+
       print ${lvl:-1} ${msg:-"[ ${SECTIONS["$s"]} -> $svc_state ]\t$s\t$ipv4:$port"}
 
       # create any missing directory
