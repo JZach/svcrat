@@ -152,7 +152,8 @@ State '10': [ 1 -> 0]   # service-state changed from online to offline
 │       ├── 01              # [ 0 -> 1]
 │       ├── 10              # [ 1 -> 0]
 │       ├── 11              # [ 1 -> 1]
-│       └── x0              # [ 0 -> 0]
+│       ├── x0              # [ x -> 0]
+│       └── x1              # [ x -> 1]
 └── svcrat.sh               # actual service-script
 ```
 
