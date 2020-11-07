@@ -146,7 +146,7 @@ State '10': [ 1 -> 0]   # service-state changed from online to offline
 /usr/local/bin/svcrat/      # default working directory
 ├── service-name            # service-name
 │   └── 1234                # service-port
-|       |                   # Contains script-folders, executed when state changed ...
+│       │                   # Contains script-folders, executed when state changed ...
 │       ├── 00              # [ 0 -> 0]
 │       ├── 01              # [ 0 -> 1]
 │       ├── 10              # [ 1 -> 0]
@@ -167,7 +167,6 @@ $svcrat_description     # description of the service
 $svcrat_path            # path of script-directory
 $svcrat_ipv4            # service host/ip
 $svcrat_port            # service port
-$svcrat_init_state      # configured value of init_state
 ```
 
 # Examples
