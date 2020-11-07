@@ -2,7 +2,7 @@
 
 --- **WORK IN PROGRESS** ---
 
-Permanently requests the current state of configured services (host/ip + port) and offers execute scripts based on that information.
+Permanently requests the current state of configured services (host/ip + port) and offers to execute scripts based on that information.
 
 # Requirements
 
@@ -122,6 +122,35 @@ Currently, these options are available:
 
 # How it works
 
+``svcrat`` iterates through all services, configured in svcrat.conf, and probes whether the service is available ('1') or not ('0').
+
+## States
+
+```bash
+State 'x0': [ x -> 0]   # previous service-state was unkown to svcrat and it changed to offline
+State 'x1': [ x -> 1]   # previous service-state was unkown to svcrat and it changed to online
+
+State '00': [ 0 -> 0]   # service-state is and was offline
+State '11': [ 1 -> 1]   # service-state is and was online
+
+State '01': [ 0 -> 1]   # service-state changed from offline to online
+State '10': [ 1 -> 0]   # service-state changed from online to offline
+```
+
+## Filesystem
+
+```
+/usr/local/bin/svcrat/                      # working directory
+├── service-name                            # service-name
+│   └── 1234                                # service-port
+|       |                                   # Contains script-folders, executed when state changed ...
+│       ├── 00                              # [ 0 -> 0]
+│       ├── 01                              # [ 0 -> 1]
+│       ├── 10                              # [ 1 -> 0]
+│       ├── 11                              # [ 1 -> 1]
+│       └── x0                              # [ 0 -> 0]
+└── svcrat.sh                               # actual service-script
+```
 
 # Examples
 
