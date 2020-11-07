@@ -69,6 +69,7 @@ start() {
 
       [ ! -d "$path/$current_state" ] && mkdir -p "$path/$current_state"
       
+      svcrat_name=$s \
       svcrat_description=$description \
       svcrat_path=$path \
       svcrat_ipv4=$ipv4 \
