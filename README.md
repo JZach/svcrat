@@ -160,7 +160,15 @@ Folders 'service-name', 'service-port' and 'state-folders' will be created on de
 
 ## Script variables
 
-tba
+When a script gets called by ``svcrat``, these variables will be available:
+```bash
+$svcrat_name            # name of the service
+$svcrat_description     # description of the service
+$svcrat_path            # path of script-directory
+$svcrat_ipv4            # service host/ip
+$svcrat_port            # service port
+$svcrat_init_state      # configured value of init_state
+```
 
 # Examples
 
