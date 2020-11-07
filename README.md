@@ -73,7 +73,7 @@ The configuration file is located at ``/usr/local/etc/svcrat/svcrat.conf`` by de
     ipv4 = 127.0.0.1
     port = 80
     description = webservice hosted on localhost
-    path = /path/to/scripts/for/host01/port445/
+    path = /path/to/scripts/for/service-01/port445/
     init_state = x
 
 [...]
@@ -89,8 +89,7 @@ Currently, these options are available:
 [global]
 
     delay = 5
-    # svcrat runs infinitely. 'delay' specifies the amount of seconds to wait
-    # for the next cycle.
+    # 'delay' specifies the amount of seconds to wait for the next cycle.
 
     verbosity-level = 1
     # 0 ... no output / quiet
@@ -126,7 +125,7 @@ Currently, these options are available:
 
 # How it works
 
-``svcrat`` iterates through all services, configured in svcrat.conf, and probes whether the service is available ('1') or not ('0').
+``svcrat`` iterates through all services configured in svcrat.conf and probes whether the service is available ('1') or not ('0').
 
 ## States
 
@@ -144,7 +143,7 @@ State '10': [ 1 -> 0]   # service-state changed from online to offline
 ## Filesystem
 
 ```
-/usr/local/bin/svcrat/      # working directory
+/usr/local/bin/svcrat/      # default working directory
 ├── service-name            # service-name
 │   └── 1234                # service-port
 |       |                   # Contains script-folders, executed when state changed ...
@@ -157,7 +156,11 @@ State '10': [ 1 -> 0]   # service-state changed from online to offline
 └── svcrat.sh               # actual service-script
 ```
 
-Folders 'service-name', 'service-port' and 'state-folders' will be created automatically if they don't exist on demand.
+Folders 'service-name', 'service-port' and 'state-folders' will be created on demand if they don't exist.
+
+## Script variables
+
+tba
 
 # Examples
 
@@ -208,7 +211,7 @@ Nov 07 09:08:39 devsrv svcrat.sh[960]: [ 0 -> 0 ]        example1        127.0.0
 [...]
 ```
 
-It can be seen that no service is running at 127.0.0.1:1234.
+It reveals that no service is running at 127.0.0.1:1234.
 
 Start a temporary service with netcat:
 
