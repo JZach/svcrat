@@ -2,17 +2,20 @@
 
 --- **WORK IN PROGRESS** ---
 
-# Description
 Permanently requests the current state of specified services (host/ip + port) and gives the opportunity to execute scripts based on that information.
 
 # Requirements
 
-``svcrat`` is a shell script written in bash. It uses the netcat utility to scan ports for their availibilty.  
+``svcrat`` is a shell script written in bash. It uses the [netcat](https://man7.org/linux/man-pages/man1/ncat.1.html) utility to scan ports for their availibilty.  
 Successfully tested on:
 
 - Ubuntu Server 20.04:
   - netcat-openbsd / 1.206-1ubuntu1 / amd64
   - bash 5.0.17(1)-release
+
+# Description
+
+
 
 # Installation
 
@@ -116,4 +119,120 @@ Currently, these options are available:
 
     path = /path/to/scripts/for/host01/port445/
     # ...
+```
+
+# Examples
+
+## Example 1
+
+### Issue
+- monitor a service running at '127.0.0.1:1234'
+- if the service goes down (state: 1 -> 0), a message will be send to all users with the utlity [wall](https://man7.org/linux/man-pages/man1/wall.1.html)
+
+### Configuration
+
+```bash
+sudo nano /usr/local/etc/svcrat/svcrat.conf
+```
+
+Add the demoe-service 'example1' to svcrat.conf
+
+```bash
+[example1]
+    ipv4 = 127.0.0.1
+    port = 1234
+    description = Demo-Service on localhost
+```
+
+Restart the svcrat.service
+```bash
+sudo systemctl restart svcrat.service
+```
+
+### Monitor temporary service
+
+``svcrat`` is now monitoring the service '127.0.0.1:1234'.  
+Use [journalctl](https://man7.org/linux/man-pages/man1/journalctl.1.html) to review the output
+
+```bash
+journalctl -f -u svcrat
+# in case you have already more defintions use grep
+# journalctl -f -u svcrat | grep example1
+```
+Output of journalctl
+```bash
+[...]
+Nov 07 09:08:24 devsrv systemd[1]: Started ServiceRat.
+Nov 07 09:08:24 devsrv svcrat.sh[960]: [ x -> 0 ]        example1        127.0.0.1:1234
+Nov 07 09:08:29 devsrv svcrat.sh[960]: [ 0 -> 0 ]        example1        127.0.0.1:1234
+Nov 07 09:08:34 devsrv svcrat.sh[960]: [ 0 -> 0 ]        example1        127.0.0.1:1234
+Nov 07 09:08:39 devsrv svcrat.sh[960]: [ 0 -> 0 ]        example1        127.0.0.1:1234
+[...]
+```
+
+It can be seen that no service is running at 127.0.0.1:1234.
+
+Start a temporary service with netcat:
+
+```bash
+while true; do nc -l 127.0.0.1 1234; done
+```
+
+After a few seconds, the temporary service can be stopped with CTRL+C and the output of ``svcrat`` can be reviewed again.
+
+```bash
+journalctl -f -u svcrat
+```
+
+Output of journalctl
+```bash
+[...]
+Nov 07 09:18:16 devsrv svcrat.sh[960]: [ 0 -> 1 ]        example1        127.0.0.1:1234
+Nov 07 09:18:21 devsrv svcrat.sh[960]: [ 1 -> 1 ]        example1        127.0.0.1:1234
+Nov 07 09:18:26 devsrv svcrat.sh[960]: [ 1 -> 1 ]        example1        127.0.0.1:1234
+Nov 07 09:18:31 devsrv svcrat.sh[960]: [ 1 -> 1 ]        example1        127.0.0.1:1234
+Nov 07 09:18:36 devsrv svcrat.sh[960]: [ 1 -> 1 ]        example1        127.0.0.1:1234
+Nov 07 09:18:42 devsrv svcrat.sh[960]: [ 1 -> 1 ]        example1        127.0.0.1:1234
+Nov 07 09:18:47 devsrv svcrat.sh[960]: [ 1 -> 0 ]        example1        127.0.0.1:1234
+[...]
+```
+
+In the very last line we can see that the service 127.0.0.1:1234 has been stopped ("[ 1 -> 0 ]")
+
+### Create script to catch "gone offline" ("[ 1 -> 0 ]")
+
+```bash
+ sudo nano /usr/local/bin/svcrat/example1/1234/10/00-notify-all-users.sh
+```
+
+Add code:
+
+```bash
+#!/bin/bash
+wall "ATTENTION: Service '$svcrat_name' ($svcrat_ipv4:$svcrat_port) went offline!"
+```
+
+Make the script executable
+
+```bash
+sudo chmod +x /usr/local/bin/svcrat/example1/1234/10/00-notify-all-users.sh
+```
+
+Start temporary service again and stop it after some seconds
+
+```bash
+while true; do nc -l 127.0.0.1 1234; done
+```
+
+Output 
+```
+root@devsrv:/# while true; do nc -l 127.0.0.1 1234; done
+^C
+
+Broadcast message from svcrat@devsrv (somewhere) (Sat Nov  7 09:30:49 2020):
+
+ATTENTION: Service 'example1' (127.0.0.1:1234) went offline!
+
+
+root@devsrv:/#
 ```
