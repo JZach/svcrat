@@ -10,9 +10,13 @@ Permanently requests the current state of configured services (host/ip + port) a
 
 Successfully tested on:
 
-- Ubuntu Server 20.04:
+- Ubuntu 20.04.1 LTS (Focal Fossa)
   - netcat-openbsd / 1.206-1ubuntu1 / amd64
-  - bash 5.0.17(1)-release
+  - GNU bash, version 5.0.17(1)-release (x86_64-pc-linux-gnu)
+
+- Raspbian GNU/Linux 10 (buster)
+  - netcat-openbsd / 1.195-2 / armhf
+  - GNU bash, version 5.0.3(1)-release (arm-unknown-linux-gnueabihf)
 
 # Installation
 
