@@ -140,16 +140,16 @@ State '10': [ 1 -> 0]   # service-state changed from online to offline
 ## Filesystem
 
 ```
-/usr/local/bin/svcrat/                      # working directory
-├── service-name                            # service-name
-│   └── 1234                                # service-port
-|       |                                   # Contains script-folders, executed when state changed ...
-│       ├── 00                              # [ 0 -> 0]
-│       ├── 01                              # [ 0 -> 1]
-│       ├── 10                              # [ 1 -> 0]
-│       ├── 11                              # [ 1 -> 1]
-│       └── x0                              # [ 0 -> 0]
-└── svcrat.sh                               # actual service-script
+/usr/local/bin/svcrat/      # working directory
+├── service-name            # service-name
+│   └── 1234                # service-port
+|       |                   # Contains script-folders, executed when state changed ...
+│       ├── 00              # [ 0 -> 0]
+│       ├── 01              # [ 0 -> 1]
+│       ├── 10              # [ 1 -> 0]
+│       ├── 11              # [ 1 -> 1]
+│       └── x0              # [ 0 -> 0]
+└── svcrat.sh               # actual service-script
 ```
 
 # Examples
