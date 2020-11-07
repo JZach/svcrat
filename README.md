@@ -2,20 +2,17 @@
 
 --- **WORK IN PROGRESS** ---
 
-Permanently requests the current state of specified services (host/ip + port) and gives the opportunity to execute scripts based on that information.
+Permanently requests the current state of configured services (host/ip + port) and offers execute scripts based on that information.
 
 # Requirements
 
 ``svcrat`` is a shell script written in bash. It uses the [netcat](https://man7.org/linux/man-pages/man1/ncat.1.html) utility to scan ports for their availibilty.  
+
 Successfully tested on:
 
 - Ubuntu Server 20.04:
   - netcat-openbsd / 1.206-1ubuntu1 / amd64
   - bash 5.0.17(1)-release
-
-# Description
-
-
 
 # Installation
 
@@ -25,33 +22,32 @@ git clone https://github.com/JZach/svcrat.git
 cd svcrat
 ```
 
-Service-User:
+Create service-user:
 ```bash
 sudo adduser svcrat --gecos "" --no-create-home --disabled-login
 ```   
 
-Create necessary directories:
-
+Create directories:
 ```bash
 #working-directory
 sudo mkdir -p /usr/local/bin/svcrat
 #configuration
 sudo mkdir -p /usr/local/etc/svcrat
 ```
-Copy script and config:
 
+Deploy script and config:
 ```bash
 sudo cp -f ./svcrat.sh /usr/local/bin/svcrat
 sudo cp -f ./svcrat.conf /usr/local/etc/svcrat
 ```   
 
-Permissions:
+Set permissions:
 ```bash
 sudo chown -R svcrat:svcrat /usr/local/bin/svcrat/
 sudo chmod +x /usr/local/bin/svcrat/svcrat.sh
 ```
 
-COPY-UNIT-SERICE
+Deploy 'svcrat.service' and enable autostart
 
 ```bash
 sudo cp -f ./svcrat.service /etc/systemd/system/svcrat.service
@@ -73,7 +69,7 @@ The configuration file is located at ``/usr/local/etc/svcrat/svcrat.conf`` by de
 
 #======================= Service Definitions =======================
 
-[host-01]
+[service-01]
     ipv4 = 127.0.0.1
     port = 80
     description = webservice hosted on localhost
@@ -82,7 +78,7 @@ The configuration file is located at ``/usr/local/etc/svcrat/svcrat.conf`` by de
 
 [...]
 
-[host-n]
+[service-n]
     ipv4 = ...
     port = ...
 ```
@@ -106,7 +102,7 @@ Currently, these options are available:
 ```
 
 ```bash
-[host-title]    # can be any title to identify the host
+[service-name]    # can be any name to identify the service
 
     ipv4 = 127.0.0.1
     # hostname or ipv4 address of remote target
@@ -119,7 +115,13 @@ Currently, these options are available:
 
     path = /path/to/scripts/for/host01/port445/
     # ...
+
+    init_state = x
+    # ...
 ```
+
+# How it works
+
 
 # Examples
 
@@ -127,7 +129,7 @@ Currently, these options are available:
 
 ### Issue
 - monitor a service running at '127.0.0.1:1234'
-- if the service goes down (state: 1 -> 0), a message will be send to all users with the utlity [wall](https://man7.org/linux/man-pages/man1/wall.1.html)
+- if the service goes down (state: 1 -> 0), a message will be send to all users with the utility [wall](https://man7.org/linux/man-pages/man1/wall.1.html)
 
 ### Configuration
 
@@ -135,7 +137,7 @@ Currently, these options are available:
 sudo nano /usr/local/etc/svcrat/svcrat.conf
 ```
 
-Add the demoe-service 'example1' to svcrat.conf
+Add the demo-service 'example1' to svcrat.conf
 
 ```bash
 [example1]
