@@ -38,7 +38,8 @@ sudo mkdir -p /usr/local/etc/svcrat
 Deploy script and config:
 ```bash
 sudo cp -f ./svcrat.sh /usr/local/bin/svcrat
-sudo cp -f ./svcrat.conf /usr/local/etc/svcrat
+sudo cp -f ./svcrat.conf.example /usr/local/etc/svcrat
+sudo cp -n /usr/local/etc/svcrat/svcrat.conf.example /usr/local/etc/svcrat/svcrat.conf
 ```   
 
 Set permissions:
