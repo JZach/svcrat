@@ -8,6 +8,7 @@ sudo mkdir -p /usr/local/etc/svcrat
 
 sudo cp -f ./svcrat.sh /usr/local/bin/svcrat
 sudo cp -f ./svcrat.conf /usr/local/etc/svcrat
+sudo cp -n /usr/local/etc/svcrat/svcrat.conf.example /usr/local/etc/svcrat/svcrat.conf
 
 sudo chown -R svcrat:svcrat /usr/local/bin/svcrat/
 sudo chmod +x /usr/local/bin/svcrat/svcrat.sh
